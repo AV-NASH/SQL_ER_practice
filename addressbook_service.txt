@@ -1,0 +1,138 @@
+mysql> create database addressbook;
+Query OK, 1 row affected (0.19 sec)
+
+mysql> use addressbook;
+Database changed
+
+mysql> create table addressbook_service
+     (
+     id int unsigned not null auto_increment,
+     first_name varchar(150) not null,
+     last_name varchar(150) not null,
+      address varchar(150),
+      city varchar(150),
+     state varchar(150),
+     zip double,
+     phone varchar(15),
+     email varchar(150),
+     primary key (id)
+    );
+mysql> describe addressbook_service;
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| id         | int unsigned | NO   | PRI | NULL    | auto_increment |
+| first_name | varchar(150) | NO   |     | NULL    |                |
+| last_name  | varchar(150) | NO   |     | NULL    |                |
+| address    | varchar(150) | YES  |     | NULL    |                |
+| city       | varchar(150) | YES  |     | NULL    |                |
+| state      | varchar(150) | YES  |     | NULL    |                |
+| zip        | double       | YES  |     | NULL    |                |
+| phone      | varchar(15)  | YES  |     | NULL    |                |
+| email      | varchar(150) | YES  |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
+
+mysql> insert into addressbook_service (first_name,last_name,address,city,state,zip,phone,email) values
+   ('Bill','Moore','B-block','new york city','new york',112233,'6757878678','bm1@f.com'),
+ ('Mark','Anthony','C-block','new mexico city','new mexico',112236,'9957878678','ma4@f.com'),
+    ('Charl','Wilson','F-block','vegas','LA',512233,'4757878678','cw3@f.com'),
+    ('Jeremaine','Coleson','j-block','vegas','LA',512233,'7757878678','jc6@f.com');
+
+
+mysql> update addressbook_service set zip=345454 where first_name='Bill' or first_name='Charl';
+
+mysql> delete from addressbook_service where last_name='Anthony';
+Query OK, 1 row affected (0.16 sec)
+
+mysql> select * from addressbook_service where city='vegas';
++----+------------+-----------+---------+-------+-------+--------+------------+-----------+
+| id | first_name | last_name | address | city  | state | zip    | phone      | email     |
++----+------------+-----------+---------+-------+-------+--------+------------+-----------+
+|  3 | Charl      | Wilson    | F-block | vegas | LA    | 345454 | 4757878678 | cw3@f.com |
+|  4 | Jeremaine  | Coleson   | j-block | vegas | LA    | 512233 | 7757878678 | jc6@f.com |
++----+------------+-----------+---------+-------+-------+--------+------------+-----------+
+2 rows in set (0.00 sec)
+
+mysql> select city,count(city) from addressbook_service group by city;
++---------------+-------------+
+| city          | count(city) |
++---------------+-------------+
+| new york city |           1 |
+| vegas         |           2 |
++---------------+-------------+
+2 rows in set (0.00 sec)
+
+
+mysql> select first_name,last_name from addressbook_service where city='vegas' order by first_name;
++------------+-----------+
+| first_name | last_name |
++------------+-----------+
+| Charl      | Wilson    |
+| Jeremaine  | Coleson   |
++------------+-----------+
+2 rows in set (0.01 sec)
+
+mysql> alter  table addressbook_service add type varchar(50) after email;
+
+mysql> select type,count(type) from addressbook_service group by type;
++------------+-------------+
+| type       | count(type) |
++------------+-------------+
+| friend     |           1 |
+| family     |           1 |
+| profession |           1 |
++------------+-------------+
+
+
+insert into addressbook_service (first_name,last_name,address,city,state,zip,phone,email,type) values
+   ('Bill','Moore','B-block','new york city','new york',112233,'6757878678','bm1@f.com','family');
+
+ address varchar(150),
+      city varchar(150),
+     state varchar(150),
+     zip double,
+
+mysql> create table contact_details
+     (
+     id int unsigned not null,
+     first_name varchar(150) not null,
+     last_name varchar(150) not null,
+     phone varchar(15),
+     email varchar(150),
+     primary key (id)
+    );
+
+mysql> create table address_details
+     (
+     id int unsigned not null,
+     city varchar(150),
+     state varchar(150),
+     zip double,
+     foreign key (id) references contact_details (id)
+    );
+
+mysql> create table contact_type
+     (type varchar(50) not null,
+     id int unsigned not null,
+primary key(type),
+     foreign key (id) references contact_details(id)
+);
+
+
+mysql>insert into contact_details  values
+   (1,'Bill','Moore','6757878678','bm1@f.com'), (2,'Charl','Wilson','4757878678','cw3@f.com');
+
+
+insert into address_details  values
+   (1,'new york city','new york',666888), (2,'vegas','LA',512233);
+
+mysql>insert into contact_type  values
+   ('family',1),  ('freind',1), ('profession',2) ;
+
+select contact_details.first_name from contact_details inner join address_details on contact_details.id=address_details.id where address_details.state='LA';
++------------+
+| first_name |
++------------+
+| Charl      |
++------------+
+1 row in set (0.05 sec)
